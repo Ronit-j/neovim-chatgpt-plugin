@@ -3,7 +3,7 @@ local M = {}
 function M.setup()
   local ls_command = 'pwd'
   local handle = io.popen("pwd") 
-  local setup_venv_command = 'python -m venv venv'
+  local setup_venv_command = '/usr/bin/python3 -m venv venv'
   local activate_venv_command = '. venv/bin/activate'
   local pip_install_requirements_command = 'pip install -r ./chatgpt-python-api/requirements.txt'
   local handle_venv = io.popen(setup_venv_command)
