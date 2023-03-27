@@ -1,4 +1,20 @@
 local M = {}
+
+function M.setup()
+  local ls_command = 'pwd'
+  local handle = io.popen("pwd") 
+  local setup_venv_command = 'python -m venv venv'
+  local activate_venv_command = '. venv/bin/activate'
+  local pip_install_requirements_command = 'pip install -r ./chatgpt-python-api/requirements.txt'
+  local handle_venv = io.popen(setup_venv_command)
+  local handle_a_venv_command = io.popen(activate_venv_command)
+  local handle_pip_install_requirements_command = io.popen(pip_install_requirements_command)
+  local result = handle:read("*a")
+  handle_venv:close()
+  handle_a_venv_command:close()
+  handle_pip_install_requirements_command:close()
+end
+
 function M.sayHelloWorld()
   print("Hello world")
 end
