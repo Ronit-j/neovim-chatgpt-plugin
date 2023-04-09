@@ -1,30 +1,36 @@
 local M = {}
-
+local curl = require("plenary.curl")
 function M.setup()
-  local ls_command = 'pwd'
-  local handle = io.popen("pwd") 
-  local setup_venv_command = '/usr/bin/python3 -m venv venv'
-  local activate_venv_command = '. venv/bin/activate'
-  local pip_install_requirements_command = 'pip install -r ./chatgpt-python-api/requirements.txt'
-  local handle_venv = io.popen(setup_venv_command)
-  local handle_a_venv_command = io.popen(activate_venv_command)
-  local handle_pip_install_requirements_command = io.popen(pip_install_requirements_command)
-  local result = handle:read("*a")
-  handle_venv:close()
-  handle_a_venv_command:close()
-  handle_pip_install_requirements_command:close()
+
 end
 
 function M.sayHelloWorld()
   print("Hello world")
 end
-
+function curl_callback(response, cb)
+  print(response)
+end
 local make_call_to_chatgpt = function(prompt) 
-  local command =  './chatgpt-python-api/venv/bin/python ./chatgpt-python-api/chatgpt-interface.py "' .. prompt .. '"'
-  local handle = io.popen(command)
+  local messages = {}
+  table.insert(messages, { role = "system", content = "Please write documentation for this code: " .. prompt })
+  local request_data = {
+   model = "gpt-3.5-turbo",
+   temperature = 0.7,
+   messages = messages,
+  }
+  local payload_str = vim.fn.json_encode(request_data)
+  local handle = io.popen("tail -c 53 .env")
   local result = handle:read("*a")
   handle:close()
-  print(result)
+  local url = "https://api.openai.com/v1/chat/completions"
+  local secret_key = result
+  local headers = { Content_Type = "application/json", Authorization = "Bearer " .. secret_key }
+  local response = curl.post(url, {
+        body = payload_str,
+        headers = headers,
+    })
+  print(response)
+  print(vim.inspect(response))
 end
 
 local embedded_functions = vim.treesitter.parse_query(
@@ -68,4 +74,6 @@ end
 vim.api.nvim_create_user_command("ChatGPTMagic", function()
   format_dat_function(vim.api.nvim_get_current_buf())
 end, {})
+
+
 return M
