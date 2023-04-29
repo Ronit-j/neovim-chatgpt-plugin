@@ -12,7 +12,7 @@ function curl_callback(response, cb)
 end
 local make_call_to_chatgpt = function(prompt) 
   local messages = {}
-  table.insert(messages, { role = "system", content = "Please write documentation for this code: " .. prompt })
+  table.insert(messages, { role = "user", content = "Please write documentation for this code: " .. prompt })
   local request_data = {
    model = "gpt-3.5-turbo",
    temperature = 0.7,
@@ -22,15 +22,37 @@ local make_call_to_chatgpt = function(prompt)
   local handle = io.popen("tail -c 53 .env")
   local result = handle:read("*a")
   handle:close()
+  -- curl https://api.openai.com/v1/chat/completions \
+  -- -H "Content-Type: application/json" \
+  -- -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -- -d '{
+  --   "model": "gpt-3.5-turbo",
+  --   "messages": [{"role": "user", "content": "Say this is a test!"}],
+  --   "temperature": 0.7
+  --  }'
+
+
+
+  local curl_command = "curl "
   local url = "https://api.openai.com/v1/chat/completions"
   local secret_key = result
-  local headers = { Content_Type = "application/json", Authorization = "Bearer " .. secret_key }
-  local response = curl.post(url, {
-        body = payload_str,
-        headers = headers,
-    })
-  print(response)
-  print(vim.inspect(response))
+  secret_key = secret_key:sub(1, -2)
+  curl_command = curl_command .. "'" .. url .. "'  --http1.1 "
+  curl_command = curl_command .. " -H 'Content-Type: application/json'"
+  curl_command = curl_command .. " -H 'Authorization: Bearer " .. secret_key .. "'"
+  curl_command = curl_command .. " -d '" .. payload_str .. "'"
+  print(curl_command)
+  local curl_command_handle = io.popen(curl_command)
+  local result = curl_command_handle:read("*a")
+  print(result)
+  print(payload_str)
+  --local headers = { Content_Type = "application/json", Authorization = "Bearer " .. secret_key }
+  --local response = curl.post(url, {
+    --    body = payload_str,
+    --    headers = headers
+    --})
+    --print(response)
+    --print(vim.inspect(response))
 end
 
 local embedded_functions = vim.treesitter.parse_query(
