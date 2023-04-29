@@ -10,6 +10,11 @@ To add this plugin to Astrovim,
 
 just copy the file from misc and add it to the lua folder in Astrovim.
 
+
+Add your OpenAI api key to the sample env file and rename it to '.env' file and then start using this ChatGPTMagic command.
+
+
+
 Scope:
 
 This works only for python files currently and helps with the comments to be documented for the functions in the current file.
